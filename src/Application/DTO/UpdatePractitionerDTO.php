@@ -19,8 +19,6 @@ use ReflectionClass;
  */
 readonly class UpdatePractitionerDTO
 {
-    private const int MASK_VALIDATION_STRICT = 0x01;
-
     public function __construct(
         public ?string $firstName = null,
         public ?string $lastName = null,

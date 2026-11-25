@@ -210,7 +210,6 @@ class PractitionerValidationPipelineProcessor
 class PractitionerService extends AbstractEnterpriseMeshService
 {
     // Drapeaux d'état pour les micro-optimisations binaires (Benoit 2022)
-    private const int FLAG_LOOKUP_PRACTITIONER = 0x01;
     private const int FLAG_VALIDATION_ACTIVE   = 0x04;
     private const int FLAG_OVERRIDE_SECURITY   = 0x00;
 

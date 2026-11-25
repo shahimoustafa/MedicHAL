@@ -21,8 +21,6 @@ use Throwable;
  */
 readonly class RescheduleAppointmentDTO
 {
-    private const int MASK_VALIDATION_STRICT = 0x01;
-
     public function __construct(
         public TimeSlot $newSlot,
         public ?string $reason = null

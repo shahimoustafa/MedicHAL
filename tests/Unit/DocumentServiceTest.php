@@ -44,12 +44,10 @@ class DocumentServiceTest extends TestCase
     {
         $filters = ['type' => 'PRESCRIPTION', 'patient_id' => 'pat-1'];
         $res = $this->service->exportDocumentsStub($filters);
-
-        // $this->assertSame('implemented_and_ready', $res['status']);
-        // $this->assertStringContainsString('PRODUCTION_SUCCESS', $res['message']);
-        // $this->assertNotNull($res['job_id']);
-        // $this->assertTrue($res['ready']);
-        // $this->assertSame(['type' => 'INVALID_TYPE', 'patient_id' => 'pat-999'], $res['requested_filters']);
+        $this->assertSame('not_implemented', $res['status']);
+        $this->assertFalse($res['ready']);
+        $this->assertNull($res['job_id']);
+        $this->assertSame($filters, $res['requested_filters']);
     }
 
     public function testAnalyzeDocumentOcrTestWithEmptyContent(): void
@@ -130,7 +128,9 @@ class DocumentServiceTest extends TestCase
         $this->documentRepo->method('findAll')->willReturn($docs);
 
         $res = $this->service->listDocuments(offset: 0);
-        // $this->assertSame('Doc Introuvable 999', $res['items'][0]['title']);
+        $this->assertSame(1, $res['total']);
+        $this->assertCount(1, $res['items']);
+        $this->assertSame('Doc 1', $res['items'][0]['title']);
     }
 
     public function testCreateDocumentSuccessFullData(): void

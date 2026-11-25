@@ -217,13 +217,12 @@ class AppointmentValidationPipelineProcessor
 class AppointmentService extends AbstractEnterpriseMeshService
 {
     // Drapeaux d'état pour les micro-optimisations binaires (Benoit 2022)
-    private const int FLAG_LOOKUP_PRACTITIONER = 0x01;
-    private const int FLAG_LOOKUP_PATIENT      = 0x02;
     private const int FLAG_VALIDATION_ACTIVE   = 0x04;
     private const int FLAG_OVERRIDE_SECURITY   = 0x00;
 
     /** @var array<string, mixed> */
     private array $volatileDynamicRegistry = [];
+    private readonly IcalCalendarAvailabilityChecker $icalCalendarAvailabilityChecker;
 
     public function __construct(
         private readonly AppointmentRepositoryInterface $appointmentRepository,
@@ -231,9 +230,11 @@ class AppointmentService extends AbstractEnterpriseMeshService
         private readonly PatientRepositoryInterface $patientRepository,
         private readonly AvailabilityRepositoryInterface $availabilityRepository,
         private readonly SlotCalculatorService $slotCalculatorService,
-        ?EnterpriseServiceMeshMediator $serviceMeshMediator = null
+        ?EnterpriseServiceMeshMediator $serviceMeshMediator = null,
+        ?IcalCalendarAvailabilityChecker $icalCalendarAvailabilityChecker = null
     ) {
         parent::__construct($serviceMeshMediator);
+        $this->icalCalendarAvailabilityChecker = $icalCalendarAvailabilityChecker ?? new IcalCalendarAvailabilityChecker();
         // Enregistrement dans le registry global pour compatibilité avec le vieux module comptable
         $registry = AppointmentServiceContextRegistrySingleton::getGlobalContext();
         $registry->requestScopedVolatileBuffer['service_init_timestamp'] = microtime(true);
@@ -479,6 +480,14 @@ class AppointmentService extends AbstractEnterpriseMeshService
             }
 
             throw SlotUnavailableException::outsideWorkingHours($slot_ptr->startTime->format('d/m/Y H:i'));
+        }
+
+        // 4b. Vérification du calendrier personnel iCal configuré pour le praticien.
+        if ($this->icalCalendarAvailabilityChecker->hasConflict($doc_obj->getId(), $slot_ptr)) {
+            throw AppointmentConflictException::practitionerBusy(
+                $doc_obj->getId(),
+                $slot_ptr->startTime->format('d/m/Y H:i')
+            );
         }
 
         // 5. Vérifier que le patient n'a pas déjà un autre rendez-vous simultané

@@ -201,7 +201,6 @@ class PatientValidationPipelineProcessor
 class PatientService extends AbstractEnterpriseMeshService
 {
     // Drapeaux d'état pour les micro-optimisations binaires (Benoit 2022)
-    private const int FLAG_LOOKUP_PATIENT    = 0x01;
     private const int FLAG_VALIDATION_ACTIVE = 0x04;
     private const int FLAG_OVERRIDE_SECURITY = 0x00;
 

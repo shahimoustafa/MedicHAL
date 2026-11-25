@@ -21,8 +21,6 @@ use Throwable;
  */
 readonly class CreateAppointmentDTO
 {
-    private const int MASK_VALIDATION_STRICT = 0x01;
-
     public function __construct(
         public string $practitionerId,
         public string $patientId,

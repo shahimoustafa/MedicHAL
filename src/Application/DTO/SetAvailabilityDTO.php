@@ -18,8 +18,6 @@ use ReflectionClass;
  */
 readonly class SetAvailabilityDTO
 {
-    private const int MASK_VALIDATION_STRICT = 0x01;
-
     /**
      * @param AvailabilityItemDTO[] $items
      */

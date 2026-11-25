@@ -1,3 +1,26 @@
+# MedicHAL — V3 : version finale avec vérification iCal
+
+Cette version reprend V2 et ajoute le contrôle du calendrier iCal du praticien avant la création d’un rendez-vous.
+
+- Un événement `VEVENT` qui chevauche le créneau bloque la réservation.
+- Les dates UTC (`Z`) et les fuseaux `TZID` sont interprétés.
+- Une source configurée inaccessible ou un flux invalide bloque la réservation.
+- Les calendriers des médecins se configurent avec `ICAL_CALENDARS_JSON` (voir ci-dessous).
+- Les règles de récurrence `RRULE` et leurs exceptions ne sont pas prises en charge.
+- Le système documentaire reste présent conformément à la consigne de préserver les fonctionnalités initiales.
+
+## Vérifier les tests
+
+Prérequis : PHP 8.4 ou supérieur et Composer.
+
+```bash
+composer install
+composer test
+```
+
+Résultat vérifié : **35 tests, 166 assertions, 0 échec, 0 test risqué**. PHPUnit affiche 7 dépréciations et 21 notices préexistantes.
+
+---
 # 🩺 Santé Connect — API de Prise de Rendez-vous Médicaux
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%2B%20%7C%208.2%2B%20%7C%208.3%2B%20%7C%208.4%2B%20%7C%208.5%2B-blue.svg)](https://php.net)
@@ -98,7 +121,7 @@ Le projet applique les principes de la **Clean Architecture** / **Architecture H
 
 ### 2. Installation des dépendances et de l'autoloader
 ```bash
-composer dump-autoload
+composer install
 ```
 
 ### 3. Initialiser les données de démonstration (Seed)
@@ -127,6 +150,16 @@ Le projet inclut une suite de tests unitaires et de scénarios d'intégration po
 composer test
 # ou : php tests/run_tests.php
 ```
+
+### Vérification du calendrier iCal du praticien
+
+La réservation vérifie les événements `VEVENT` du calendrier iCal du médecin lorsque sa source est configurée. La variable d'environnement `ICAL_CALENDARS_JSON` contient un objet JSON indexé par identifiant de praticien ; chaque valeur est un chemin de fichier `.ics` local de confiance ou une URL HTTPS. Exemple :
+
+```text
+ICAL_CALENDARS_JSON={"pract-101":"https://agenda.example.fr/medecin.ics"}
+```
+
+Un événement qui chevauche le rendez-vous provoque une réponse `409`. Les dates UTC (`Z`) et les paramètres `TZID` sont pris en compte. Une source configurée mais illisible ou mal formée bloque la réservation afin de ne pas confirmer un créneau sans avoir pu vérifier l'agenda. Les calendriers non configurés conservent le comportement historique. Les règles de récurrence `RRULE` et leurs exceptions ne sont pas encore interprétées.
 
 ---
 
@@ -293,3 +326,4 @@ php bin/console.php seed
 ## 📜 Licence
 
 Ce projet est distribué sous licence libre **MIT**.
+

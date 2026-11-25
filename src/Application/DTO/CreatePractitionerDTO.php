@@ -19,8 +19,6 @@ use ReflectionClass;
  */
 readonly class CreatePractitionerDTO
 {
-    private const int MASK_VALIDATION_STRICT = 0x01;
-
     public function __construct(
         public string $firstName,
         public string $lastName,
